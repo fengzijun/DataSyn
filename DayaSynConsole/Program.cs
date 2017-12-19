@@ -14,14 +14,27 @@ namespace DayaSynConsole
         static string connection2 = System.Configuration.ConfigurationManager.ConnectionStrings["connection2"].ConnectionString;
         static void Main(string[] args)
         {
+            ClearData();
+            InsertToBN_INF_APPLY();
+            InsertToBN_INF_APPLYResult();
             InsertToBN_INF_APPLYProcess();
             Console.ReadKey();
         }
 
 
+        static void ClearData()
+        {
+            string sql = "delete [dbo].[BN_INF_APPLY]";
+            SqlHelper.ExecuteNonQuery(connection2, System.Data.CommandType.Text, sql, null);
+            sql = "delete [dbo].[BN_INF_APPLY_PROCESS]";
+            SqlHelper.ExecuteNonQuery(connection2, System.Data.CommandType.Text, sql, null);
+            sql = "delete [dbo].[BN_INF_APPLY_RESULT]";
+            SqlHelper.ExecuteNonQuery(connection2, System.Data.CommandType.Text, sql, null);
+        }
+
         static void InsertToBN_INF_APPLY()
         {
-            string sql = @"select businessid,txr_UserName,yyzzzch,lxr,checkbz1 from gczj_zbkzjbaglb a 
+            string sql = @"select businessid,txr_UserName,yyzzzch,lxr,checkbz1 , a.xgrqsj from gczj_zbkzjbaglb a 
 inner join UEPP_Qyjbxx b on a.txr_UserID = b.userid";
             var datareader = SqlHelper.ExecuteReader(connection, System.Data.CommandType.Text, sql);
             Random random = new Random();
@@ -32,7 +45,8 @@ inner join UEPP_Qyjbxx b on a.txr_UserID = b.userid";
                 string yyzzzch = datareader["yyzzzch"] == DBNull.Value ? string.Empty : datareader["yyzzzch"].ToString();
                 string lxr = datareader["lxr"] == DBNull.Value ? string.Empty : datareader["lxr"].ToString();
                 string checkbz1 = datareader["checkbz1"] == DBNull.Value ? string.Empty : datareader["checkbz1"].ToString();
-                AddBN_INF_APPLYItem(businessid, txr_UserName, yyzzzch, lxr, checkbz1, "100020500020171212" + random.Next(1, 9999).ToString().PadLeft(4, '0'));
+                DateTime time = datareader["xgrqsj"] == DBNull.Value ?DateTime.MinValue: DateTime.Parse( datareader["xgrqsj"].ToString());
+                AddBN_INF_APPLYItem(businessid, txr_UserName, yyzzzch, lxr, checkbz1, "100020500020171212" + random.Next(1, 9999).ToString().PadLeft(4, '0'), time);
                 Console.WriteLine(businessid);
             }
 
@@ -78,7 +92,7 @@ inner join UEPP_Qyjbxx b on a.txr_UserID = b.userid";
 
         }
 
-        static void AddBN_INF_APPLYItem(string businessid,string username,string yyzzzch,string lxr,string checkbz1,string seqno)
+        static void AddBN_INF_APPLYItem(string businessid, string username, string yyzzzch, string lxr, string checkbz1, string seqno, DateTime time)
         {
             string sql = @"INSERT INTO [dbo].[BN_INF_APPLY]
            ([BelongXiaQuCode]
@@ -187,47 +201,47 @@ inner join UEPP_Qyjbxx b on a.txr_UserID = b.userid";
            ,@businessid
            ,@AREA_NAME)";
             SqlParameter[] parms = new SqlParameter[] {
-                new SqlParameter("@BelongXiaQuCode",string.Empty),
-                new SqlParameter("@OperateUserName",string.Empty),
-                new SqlParameter("@OperateDate",string.Empty),
-                new SqlParameter("@YearFlag",string.Empty),
-                new SqlParameter("@RowGuid",string.Empty),
-                new SqlParameter("@SYNC_ERROR_DESC",string.Empty),
-                new SqlParameter("@SYNC_SIGN",string.Empty),
-                new SqlParameter("@SYNC_DATE",string.Empty),
+                new SqlParameter("@BelongXiaQuCode",null),
+                new SqlParameter("@OperateUserName",null),
+                new SqlParameter("@OperateDate",null),
+                new SqlParameter("@YearFlag",null),
+                new SqlParameter("@RowGuid",null),
+                new SqlParameter("@SYNC_ERROR_DESC",null),
+                new SqlParameter("@SYNC_SIGN",null),
+                new SqlParameter("@SYNC_DATE",DateTime.Now),
                 new SqlParameter("@DATA_SOURCES","2"),
                 new SqlParameter("@BJ_STATU",checkbz1),
-                new SqlParameter("@APPLY_DATE",string.Empty),
-                new SqlParameter("@WAPPLY_DATE",string.Empty),
+                new SqlParameter("@APPLY_DATE",time),
+                new SqlParameter("@WAPPLY_DATE",time),
                 new SqlParameter("@PROMISE_TYPE","1"),
                 new SqlParameter("@PROMISE","4"),
                 new SqlParameter("@ANTICIPATE_DAY_TYPE","1"),
                 new SqlParameter("@ANTICIPATE","7"),
-                new SqlParameter("@SJ_FILE_REMARK",string.Empty),
-                new SqlParameter("@YE_MS",string.Empty),
-                new SqlParameter("@LINKMAN_EMAIL",string.Empty),
-                new SqlParameter("@LINKMAN_ZIPCODE",string.Empty),
-                new SqlParameter("@LINKMAN_ADDRESS",string.Empty),
-                new SqlParameter("@LINKMAN_PHONE",string.Empty),
-                new SqlParameter("@LINKMAN_MOBILE",string.Empty),
-                new SqlParameter("@LINKMAN_PAPER_CODE",string.Empty),
-                new SqlParameter("@LINKMAN_PAPER_TYPE",string.Empty),
+                new SqlParameter("@SJ_FILE_REMARK",null),
+                new SqlParameter("@YE_MS",null),
+                new SqlParameter("@LINKMAN_EMAIL",null),
+                new SqlParameter("@LINKMAN_ZIPCODE",null),
+                new SqlParameter("@LINKMAN_ADDRESS",null),
+                new SqlParameter("@LINKMAN_PHONE",null),
+                new SqlParameter("@LINKMAN_MOBILE",null),
+                new SqlParameter("@LINKMAN_PAPER_CODE",null),
+                new SqlParameter("@LINKMAN_PAPER_TYPE",null),
                 new SqlParameter("@LINKMAN_NAME",lxr),
-                new SqlParameter("@OPER_MAN_NAME",string.Empty),
-                  new SqlParameter("@APPLICANT_CODE",string.Empty),
-                    new SqlParameter("@APPLICANT_EMALL",string.Empty),
-                      new SqlParameter("@APPLICANT_ZIPCODE",string.Empty),
-                        new SqlParameter("@APPLICANT_ADDRESS",string.Empty),
-                          new SqlParameter("@APPLICANT_PHONE",string.Empty),
-                            new SqlParameter("@APPLICANT_MOBILE",string.Empty),
+                new SqlParameter("@OPER_MAN_NAME",null),
+                  new SqlParameter("@APPLICANT_CODE",null),
+                    new SqlParameter("@APPLICANT_EMALL",null),
+                      new SqlParameter("@APPLICANT_ZIPCODE",null),
+                        new SqlParameter("@APPLICANT_ADDRESS",null),
+                          new SqlParameter("@APPLICANT_PHONE",null),
+                            new SqlParameter("@APPLICANT_MOBILE",null),
                               new SqlParameter("@APPLICANT_PAPER_CODE",yyzzzch),
                                 new SqlParameter("@APPLICANT_PAPER_TYPE","8"),
                                   new SqlParameter("@APPLICANT_NAME",username),
                                   new SqlParameter("@APPLICANT_TYPE","2"),
                                     new SqlParameter("@SQ_WAY","1"),
-                                     new SqlParameter("@IF_URGENT",string.Empty),
-                                      new SqlParameter("@CONTENT",string.Empty),
-                                        new SqlParameter("@TRANSACT_AFFAIR_NAME",string.Empty),
+                                     new SqlParameter("@IF_URGENT",null),
+                                      new SqlParameter("@CONTENT",null),
+                                        new SqlParameter("@TRANSACT_AFFAIR_NAME",null),
                                           new SqlParameter("@DEPARTMENT","住建局定额站"),
                                            new SqlParameter("@DEPT_YW_NAME","国有投资建设工程项目招标控制价备查"),
                                             new SqlParameter("@DEPT_YW_REG_NO","32050900000001420376501000205000"),
@@ -243,7 +257,7 @@ inner join UEPP_Qyjbxx b on a.txr_UserID = b.userid";
             SqlHelper.ExecuteNonQuery(connection2, System.Data.CommandType.Text, sql, parms);
         }
 
-        static void AddBN_INF_APPLY_PROCESSItem(string businessid,DateTime? time,int EVENT_NUMBER)
+        static void AddBN_INF_APPLY_PROCESSItem(string businessid, DateTime? time, int EVENT_NUMBER)
         {
             string sql = @"INSERT INTO [dbo].[BN_INF_APPLY_PROCESS]
            ([BelongXiaQuCode]
@@ -304,40 +318,39 @@ inner join UEPP_Qyjbxx b on a.txr_UserID = b.userid";
            ,@INTERNAL_NO
            ,@businessid)";
             SqlParameter[] parms = new SqlParameter[] {
-                new SqlParameter("@BelongXiaQuCode",string.Empty),
-                new SqlParameter("@OperateUserName",string.Empty),
-                new SqlParameter("@OperateDate",string.Empty),
-                new SqlParameter("@YearFlag",string.Empty),
-                new SqlParameter("@RowGuid",string.Empty),
-                new SqlParameter("@SYNC_ERROR_DESC",string.Empty),
-                new SqlParameter("@SYNC_SIGN",string.Empty),
-                new SqlParameter("@SYNC_DATE",string.Empty),
+                new SqlParameter("@BelongXiaQuCode",null),
+                new SqlParameter("@OperateUserName",null),
+                new SqlParameter("@OperateDate",null),
+                new SqlParameter("@YearFlag",null),
+                new SqlParameter("@RowGuid",null),
+                new SqlParameter("@SYNC_ERROR_DESC",null),
+                new SqlParameter("@SYNC_SIGN",null),
+                new SqlParameter("@SYNC_DATE",DateTime.Now),
                 new SqlParameter("@DATA_SOURCES","2"),
-                new SqlParameter("@REMARK",string.Empty),
-                new SqlParameter("@END_USER_NAME",string.Empty),
-                new SqlParameter("@PROCESS_REPORT",string.Empty),
-                new SqlParameter("@PROCESS_REPORT_NAME",string.Empty),
+                new SqlParameter("@REMARK",null),
+                new SqlParameter("@END_USER_NAME",null),
+                new SqlParameter("@PROCESS_REPORT",null),
+                new SqlParameter("@PROCESS_REPORT_NAME",null),
                 new SqlParameter("@END_NOTE","4"),
                 new SqlParameter("@END_TIME",time),
-                new SqlParameter("@START_PHONE",string.Empty),
-                new SqlParameter("@START_TEL",string.Empty),
-                new SqlParameter("@START_USER_NAME",string.Empty),
-                new SqlParameter("@START_NOTE",string.Empty),
-                new SqlParameter("@EVENT_TIME_TYPE",string.Empty),
+                new SqlParameter("@START_PHONE",null),
+                new SqlParameter("@START_TEL",null),
+                new SqlParameter("@START_USER_NAME",null),
+                new SqlParameter("@START_NOTE",null),
+                new SqlParameter("@EVENT_TIME_TYPE",null),
                 new SqlParameter("@EVENT_TIME",0),
-                new SqlParameter("@START_TIME",string.Empty),
-                new SqlParameter("@DEPARTMENT",string.Empty),
-                new SqlParameter("@EVENT_NAME",string.Empty),
+                new SqlParameter("@START_TIME",null),
+                new SqlParameter("@DEPARTMENT",null),
+                new SqlParameter("@EVENT_NAME",null),
                 new SqlParameter("@EVENT_CODE","B9"),
                 new SqlParameter("@EVENT_NUMBER",EVENT_NUMBER),
-                new SqlParameter("@INTERNAL_NO",string.Empty),
-               
+                new SqlParameter("@INTERNAL_NO",null),
+
                 new SqlParameter("@businessid",businessid)
- 
+
             };
             SqlHelper.ExecuteNonQuery(connection2, System.Data.CommandType.Text, sql, parms);
         }
-
 
         static void AddBN_INF_APPLY_RESULTItem(string businessid, DateTime? shrqsj1)
         {
@@ -378,22 +391,22 @@ inner join UEPP_Qyjbxx b on a.txr_UserID = b.userid";
            ,@INTERNAL_NO
            ,@businessid)";
             SqlParameter[] parms = new SqlParameter[] {
-                new SqlParameter("@BelongXiaQuCode",string.Empty),
-                new SqlParameter("@OperateUserName",string.Empty),
-                new SqlParameter("@OperateDate",string.Empty),
-                new SqlParameter("@YearFlag",string.Empty),
-                new SqlParameter("@RowGuid",string.Empty),
-                new SqlParameter("@SYNC_ERROR_DESC",string.Empty),
-                new SqlParameter("@SYNC_SIGN",string.Empty),
-                new SqlParameter("@SYNC_DATE",string.Empty),
+                new SqlParameter("@BelongXiaQuCode",null),
+                new SqlParameter("@OperateUserName",null),
+                new SqlParameter("@OperateDate",null),
+                new SqlParameter("@YearFlag",null),
+                new SqlParameter("@RowGuid",null),
+                new SqlParameter("@SYNC_ERROR_DESC",null),
+                new SqlParameter("@SYNC_SIGN",null),
+                new SqlParameter("@SYNC_DATE",DateTime.Now),
                 new SqlParameter("@DATA_SOURCES","2"),
               new SqlParameter("@CREATE_DATE",shrqsj1),
-                  new SqlParameter("@RESULT_FILE",string.Empty),
-                      new SqlParameter("@RESULT_FILE_NAME",string.Empty),
-                          new SqlParameter("@NOTE",string.Empty),
-                              new SqlParameter("@RESULT_NO",string.Empty),
+                  new SqlParameter("@RESULT_FILE",null),
+                      new SqlParameter("@RESULT_FILE_NAME",null),
+                          new SqlParameter("@NOTE",null),
+                              new SqlParameter("@RESULT_NO",null),
                                   new SqlParameter("@STATUS","A"),
-                new SqlParameter("@INTERNAL_NO",string.Empty),
+                new SqlParameter("@INTERNAL_NO",null),
 
                 new SqlParameter("@businessid",businessid)
 
